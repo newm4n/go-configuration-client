@@ -29,6 +29,16 @@ func (cnf *Configuration) ContainsKey(key string) bool {
 	return false
 }
 
+func (cnf *Configuration) GetKeys() []string {
+	ret := make([]string,0)
+	for _, propSource := range cnf.PropertySources {
+		for i, _ := range propSource.Source {
+			ret = append(ret, i)
+		}
+	}
+	return ret
+}
+
 func (cnf *Configuration) Get(key string) interface{} {
 	for _, s := range cnf.PropertySources {
 		if s.Source[key] != "" {
