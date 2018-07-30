@@ -8,6 +8,7 @@ import (
 	"log"
 	"encoding/json"
 	"reflect"
+	"github.com/newm4n/go-utility"
 )
 
 type Configuration struct {
@@ -64,20 +65,34 @@ type PropertySource struct {
 }
 
 type ConfigurationClient struct {
-	client http.Client `json:"-"`
+	client *http.Client `json:"-"`
 	Host   string
 	Port   int
+	SecurePort int
 }
 
-func NewConfigurationClient(host string, port int) *ConfigurationClient {
+func NewConfigurationClient(host string, port, securePort int) *ConfigurationClient {
 	return &ConfigurationClient{
+		client: go_utility.GetDefaultHttpClient(true),
 		Host: host,
 		Port: port,
+		SecurePort: securePort,
 	}
 }
 
 func (cs *ConfigurationClient) GetConfiguration(name, profile string) (*Configuration, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%d/%s/%s", cs.Host, cs.Port, name, profile), nil)
+	var scheme string
+	var port int
+	if cs.SecurePort > 0 {
+		scheme = "https"
+		port = cs.SecurePort
+	} else if cs.Port > 0 {
+		scheme = "http"
+		port = cs.Port
+	} else {
+		return nil, errors.New("both port or secureport is 0, dont know how to connect to config server")
+	}
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s://%s:%d/%s/%s", scheme, cs.Host, port, name, profile), nil)
 	if err != nil {
 		return nil, err
 	}
