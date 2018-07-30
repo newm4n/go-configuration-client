@@ -3,7 +3,7 @@ package go_configuration_client
 import "testing"
 
 func TestConfigurationClient_GetConfiguration(t *testing.T) {
-	server := NewConfigurationClient("localhost", 8888)
+	server := NewConfigurationClient("localhost", 8888, 0)
 	config, err := server.GetConfiguration("discovery", "master")
 	if err != nil {
 		t.Fatal(err)
